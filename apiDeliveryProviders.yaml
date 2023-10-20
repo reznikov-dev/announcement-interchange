@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Инфообмен анонсами. API СД.
+  
+paths:
+  /receiveAnnouncement:
+    post:
+      tags: [Прием и отмена анонсов]
+      operationId: ReceiveAnnouncement
+      summary: Метод приема анонса
+      description: Создает анонс о планируемой отгрузке в системе СД2.
+      parameters: [ ]
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiveAnnouncementRequest'
+        required: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '500':
+          description: Internal error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Требуется аутентификация/Неверный токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /cancelAnnouncement:
+    post:
+      tags: [Прием и отмена анонсов]
+      operationId: CancelAnnouncement
+      summary: Метод отмены анонса
+      description: Отменяет анонс
+      parameters: [ ]
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelAnnouncementRequest'
+        required: true
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '500':
+          description: Internal error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Требуется аутентификация/Неверный токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          nullable: true
+          properties:
+            status:
+              type: string
+              description: Статус выполнения запроса.
+              enum:
+                - success
+                - failed
+        error:
+          type: object
+          nullable: true
+          properties:
+            code: 
+              type: string
+              description: Код ошибки
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Текстовое описание ошибки
+              example: Текст ошибки
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          nullable: true
+          properties:
+            code: 
+              type: string
+              description: Код ошибки
+              example: "INTERNAL_ERROR"
+            message:
+              type: string
+              description: Текстовое описание ошибки
+              example: Текст ошибки
+    CancelAnnouncementRequest:
+      type: object
+      required:
+        - announceID
+      properties:
+        announceID:
+          $ref: '#/components/schemas/UUID'
+        reason:
+          type: string
+          description: Причина омены анонса
+          enum: 
+            - CANCELED_BY_DELIVERY_PROVIDER
+            - CANCELED_BY_AVITO
+    ReceiveAnnouncementRequest:
+      type: object
+      required:
+        - announceID
+        - sender
+        - receiver
+        - announceType
+        - date
+        - packages
+      properties:
+        announceID:
+          $ref: '#/components/schemas/UUID'
+        sender:
+          allOf:
+            - $ref: '#/components/schemas/DeliveryParticipant'
+          example: |-
+            {
+              "type": "3PL",
+              "name": "ExMail",
+              "phones": ["8-800-200-00-00"],
+              "email": "mail@exmail.ru",
+              "delivery": {
+                "type": "SORTING_CENTER",
+                "sortingCenter": {
+                  "provider": "exmail",
+                  "id": "010",
+                  "accuracy": "EXACT"
+                }
+              }
+            }
+        receiver:
+          allOf:
+            - $ref: '#/components/schemas/DeliveryParticipant'
+          example: |-
+            {
+              "type": "3PL",
+              "name": "Почта России",
+              "phones": ["8-800-300-00-00"],
+              "email": "mail@pochta.ru",
+              "delivery": {
+                "type": "SORTING_CENTER",
+                "sortingCenter": {
+                  "provider": "exmail",
+                  "id": "19310",
+                  "accuracy": "EXACT"
+                }
+              }
+            }
+        announceType:
+          type: string
+          description: Тип анонса
+          enum:
+            - DELIVERY
+        date:
+          allOf:
+            - $ref: '#/components/schemas/DateWithTz'
+          description: Дата и время создания анонса
+        packages:
+          type: array
+          description: Список грузомест
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Package'
+    Package:
+      type: object
+      required:
+        - id
+        - sealID
+        - parcels
+      properties:
+        id:
+          type: string
+          description: Идентификатор грузоместа
+          example: "package1"
+        sealID:
+          type: string
+          description: Номер пломбы
+          example: "1234-5678"
+        parcels:
+          type: array
+          description: Список посылок
+          items:
+            $ref: '#/components/schemas/Parcel'
+    Parcel:
+      type: object
+      required:
+        - id
+        - barcode
+      properties:
+        id:
+          type: string
+          description: Идентификатор посылки в СД2
+          example: "P000777"
+        barcode:
+          type: string
+          description: Штрихкод посылки в СД2
+          example: "000012345"
+        senderID:
+          type: string
+          description: Идентификатор посылки у отправителя СД1
+          example: "P000776"
+        senderBarcode:
+          type: string
+          description: Штрихкод посылки у отправителя СД1
+          example: "123450000"
+    DateWithTz:
+      type: string
+      example: "2023-09-20T10:00:00.52Z"
+    UUID:
+      type: string
+      description: Уникальный идентификатор анонса
+      example: "55fefb84-fa30-47ee-bf29-9c860823ea79"
+    DeliveryParticipant:
+      type: object
+      required:
+        - type
+        - name
+        - phones
+        - delivery
+      properties:
+        type:
+          type: string
+          description: Тип отправителя/получателя
+          enum:
+            - 3PL
+        name:
+          type: string
+          description: Наименование участника доставки (наименование СД)
+        phones:
+          type: array
+          description: Контактные телефоны
+          items:
+            type: string
+        email:
+          type: string
+          description: Адрес электронной почты
+        delivery:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              description: Тип доставки
+              enum:
+                - SORTING_CENTER
+            sortingCenter:
+              type: object
+              nullable: true
+              required:
+                - provider
+                - id
+                - accuracy
+              description: Информация о сортировочном центре, заполняется если тиа доставки SORTING_CENTER
+              properties:
+                provider:
+                  type: string
+                  description: Код службы доставки
+                id:
+                  type: string
+                  description: Идентификатор сортировочного центра
+                accuracy:
+                  type: string
+                  description: Точность указания сортировочного центра
+                  enum: 
+                    - EXACT
+                    - APPROXIMATE
