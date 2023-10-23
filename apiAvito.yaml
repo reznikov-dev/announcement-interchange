@@ -233,7 +233,6 @@ components:
       type: object
       required:
         - id
-        - sealID
         - parcelIDs
       properties:
         id:
