@@ -200,7 +200,6 @@ components:
       type: object
       required:
         - id
-        - sealID
         - parcels
       properties:
         id:
