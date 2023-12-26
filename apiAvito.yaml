@@ -4,10 +4,10 @@ info:
   title: Инфообмен анонсами. API 3PL Avito.
   
 paths:
-  /delivery/receiveAnnouncement:
+  /delivery/createAnnouncement:
     post:
       tags: [Создание и трекинг анонсов]
-      operationId: ReceiveAnnouncement
+      operationId: CreateAnnouncement
       summary: Метод для создания анонса
       description: Создает анонс о планируемой отгрузке в системе Авито. После успешного создания, анонс направляется в службу доставки указанную в поле "receiver".
       parameters: [ ]
@@ -16,7 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReceiveAnnouncementRequest'
+              $ref: '#/components/schemas/CreateAnnouncementRequest'
         required: true
       security:
         - bearerAuth: []
@@ -166,10 +166,11 @@ components:
             - CANCELLED
             - DELIVERED
             - RECEIVED
-    ReceiveAnnouncementRequest:
+    CreateAnnouncementRequest:
       type: object
       required:
         - announceID
+        - barcode
         - sender
         - receiver
         - announceType
@@ -178,6 +179,10 @@ components:
       properties:
         announceID:
           $ref: '#/components/schemas/UUID'
+        barcode:
+          type: string
+          description: "ШК анонса"
+          example: "000987654321"
         sender:
           allOf:
             - $ref: '#/components/schemas/DeliveryParticipant'
@@ -237,8 +242,8 @@ components:
       properties:
         id:
           type: string
-          description: Идентификатор грузоместа
-          example: "package1"
+          description: Идентификатор грузоместа (ШК грузоместа)
+          example: "0001234"
         sealID:
           type: string
           description: Номер пломбы
