@@ -4,11 +4,11 @@ info:
   title: Инфообмен анонсами. API СД.
   
 paths:
-  /receiveAnnouncement:
+  /createAnnouncement:
     post:
-      tags: [Прием и отмена анонсов]
-      operationId: ReceiveAnnouncement
-      summary: Метод приема анонса
+      tags: [Создание и отмена анонсов]
+      operationId: CreateAnnouncement
+      summary: Метод создания анонса
       description: Создает анонс о планируемой отгрузке в системе СД2.
       parameters: [ ]
       requestBody:
@@ -16,7 +16,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReceiveAnnouncementRequest'
+              $ref: '#/components/schemas/CreateAnnouncementRequest'
         required: true
       security:
         - bearerAuth: []
@@ -133,10 +133,11 @@ components:
           enum: 
             - CANCELED_BY_DELIVERY_PROVIDER
             - CANCELED_BY_AVITO
-    ReceiveAnnouncementRequest:
+    CreateAnnouncementRequest:
       type: object
       required:
         - announceID
+        - barcode
         - sender
         - receiver
         - announceType
@@ -145,6 +146,10 @@ components:
       properties:
         announceID:
           $ref: '#/components/schemas/UUID'
+        barcode:
+          type: string
+          description: ШК анонса
+          example: "000987654321"
         sender:
           allOf:
             - $ref: '#/components/schemas/DeliveryParticipant'
@@ -204,8 +209,8 @@ components:
       properties:
         id:
           type: string
-          description: Идентификатор грузоместа
-          example: "package1"
+          description: Идентификатор грузоместа (ШК грузоместа)
+          example: "000123456789"
         sealID:
           type: string
           description: Номер пломбы
@@ -285,7 +290,7 @@ components:
                 - provider
                 - id
                 - accuracy
-              description: Информация о сортировочном центре, заполняется если тиа доставки SORTING_CENTER
+              description: Информация о сортировочном центре, заполняется если тип доставки SORTING_CENTER
               properties:
                 provider:
                   type: string
