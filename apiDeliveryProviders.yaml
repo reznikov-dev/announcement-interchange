@@ -41,7 +41,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /cancelAnnouncement:
     post:
-      tags: [Прием и отмена анонсов]
+      tags: [Создание и отмена анонсов]
       operationId: CancelAnnouncement
       summary: Метод отмены анонса
       description: Отменяет анонс
