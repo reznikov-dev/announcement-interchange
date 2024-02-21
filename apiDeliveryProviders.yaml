@@ -123,9 +123,9 @@ components:
     CancelAnnouncementRequest:
       type: object
       required:
-        - announceID
+        - announcementID
       properties:
-        announceID:
+        announcementID:
           $ref: '#/components/schemas/UUID'
         reason:
           type: string
@@ -136,15 +136,15 @@ components:
     CreateAnnouncementRequest:
       type: object
       required:
-        - announceID
+        - announcementID
         - barcode
         - sender
         - receiver
-        - announceType
+        - announcementType
         - date
         - packages
       properties:
-        announceID:
+        announcementID:
           $ref: '#/components/schemas/UUID'
         barcode:
           type: string
@@ -186,7 +186,7 @@ components:
                 }
               }
             }
-        announceType:
+        announcementType:
           type: string
           description: Тип анонса
           enum:
