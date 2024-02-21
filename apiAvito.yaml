@@ -4,7 +4,7 @@ info:
   title: Инфообмен анонсами. API 3PL Avito.
   
 paths:
-  /delivery/createAnnouncement:
+  /delivery/announcements/create:
     post:
       tags: [Создание и трекинг анонсов]
       operationId: CreateAnnouncement
@@ -45,7 +45,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorAuth'        
-  /delivery/trackAnnouncement:
+  /delivery/announcements/track:
     post:
       tags: [Создание и трекинг анонсов]
       operationId: TrackAnnouncement
@@ -149,11 +149,11 @@ components:
     TrackAnnouncementRequest:
       type: object
       required:
-        - announceID
+        - announcementID
         - date
         - event
       properties:
-        announceID:
+        announcementID:
           $ref: '#/components/schemas/UUID'
         date:
           allOf:
@@ -169,15 +169,15 @@ components:
     CreateAnnouncementRequest:
       type: object
       required:
-        - announceID
+        - announcementID
         - barcode
         - sender
         - receiver
-        - announceType
+        - announcementType
         - date
         - packages
       properties:
-        announceID:
+        announcementID:
           $ref: '#/components/schemas/UUID'
         barcode:
           type: string
@@ -219,7 +219,7 @@ components:
                 }
               }
             }
-        announceType:
+        announcementType:
           type: string
           description: Тип анонса
           enum:
